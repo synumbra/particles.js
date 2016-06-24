@@ -153,13 +153,26 @@ var pJS = function(tag_id, params){
     mode_repulse_distance: pJS.interactivity.modes.repulse.distance
   };
 
+  // Taken from http://stackoverflow.com/a/13694869
+  psJS.fn.secureRand = function() {
+    var arr = new Uint32Array(2);
+    crypto.getRandomValues(arr);
+
+    // keep all 32 bits of the the first, top 20 of the second for 52 random bits
+    var mantissa = (arr[0] * Math.pow(2,20)) + (arr[1] >>> 12)
+
+    // shift all 52 bits to the right of the decimal point
+    var result = mantissa * Math.pow(2,-52);
+
+    return result;
+  }
 
   pJS.fn.retinaInit = function(){
 
     if(pJS.retina_detect && window.devicePixelRatio > 1){
-      pJS.canvas.pxratio = window.devicePixelRatio; 
+      pJS.canvas.pxratio = window.devicePixelRatio;
       pJS.tmp.retina = true;
-    } 
+    }
     else{
       pJS.canvas.pxratio = 1;
       pJS.tmp.retina = false;
@@ -241,18 +254,18 @@ var pJS = function(tag_id, params){
   pJS.fn.particle = function(color, opacity, position){
 
     /* size */
-    this.radius = (pJS.particles.size.random ? Math.random() : 1) * pJS.particles.size.value;
+    this.radius = (pJS.particles.size.random ? pnJS.fn.secureRand() : 1) * pJS.particles.size.value;
     if(pJS.particles.size.anim.enable){
       this.size_status = false;
       this.vs = pJS.particles.size.anim.speed / 100;
       if(!pJS.particles.size.anim.sync){
-        this.vs = this.vs * Math.random();
+        this.vs = this.vs * pnJS.fn.secureRand();
       }
     }
 
     /* position */
-    this.x = position ? position.x : Math.random() * pJS.canvas.w;
-    this.y = position ? position.y : Math.random() * pJS.canvas.h;
+    this.x = position ? position.x : pnJS.fn.secureRand() * pJS.canvas.w;
+    this.y = position ? position.y : pnJS.fn.secureRand() * pJS.canvas.h;
 
     /* check position  - into the canvas */
     if(this.x > pJS.canvas.w - this.radius*2) this.x = this.x - this.radius;
@@ -270,7 +283,7 @@ var pJS = function(tag_id, params){
     if(typeof(color.value) == 'object'){
 
       if(color.value instanceof Array){
-        var color_selected = color.value[Math.floor(Math.random() * pJS.particles.color.value.length)];
+        var color_selected = color.value[Math.floor(pnJS.fn.secureRand() * pJS.particles.color.value.length)];
         this.color.rgb = hexToRgb(color_selected);
       }else{
         if(color.value.r != undefined && color.value.g != undefined && color.value.b != undefined){
@@ -292,9 +305,9 @@ var pJS = function(tag_id, params){
     }
     else if(color.value == 'random'){
       this.color.rgb = {
-        r: (Math.floor(Math.random() * (255 - 0 + 1)) + 0),
-        g: (Math.floor(Math.random() * (255 - 0 + 1)) + 0),
-        b: (Math.floor(Math.random() * (255 - 0 + 1)) + 0)
+        r: (Math.floor(pnJS.fn.secureRand() * (255 - 0 + 1)) + 0),
+        g: (Math.floor(pnJS.fn.secureRand() * (255 - 0 + 1)) + 0),
+        b: (Math.floor(pnJS.fn.secureRand() * (255 - 0 + 1)) + 0)
       }
     }
     else if(typeof(color.value) == 'string'){
@@ -303,12 +316,12 @@ var pJS = function(tag_id, params){
     }
 
     /* opacity */
-    this.opacity = (pJS.particles.opacity.random ? Math.random() : 1) * pJS.particles.opacity.value;
+    this.opacity = (pJS.particles.opacity.random ? pnJS.fn.secureRand() : 1) * pJS.particles.opacity.value;
     if(pJS.particles.opacity.anim.enable){
       this.opacity_status = false;
       this.vo = pJS.particles.opacity.anim.speed / 100;
       if(!pJS.particles.opacity.anim.sync){
-        this.vo = this.vo * Math.random();
+        this.vo = this.vo * pnJS.fn.secureRand();
       }
     }
 
@@ -348,29 +361,29 @@ var pJS = function(tag_id, params){
       this.vx = velbase.x;
       this.vy = velbase.y;
       if(pJS.particles.move.random){
-        this.vx = this.vx * (Math.random());
-        this.vy = this.vy * (Math.random());
+        this.vx = this.vx * (pnJS.fn.secureRand());
+        this.vy = this.vy * (pnJS.fn.secureRand());
       }
     }else{
-      this.vx = velbase.x + Math.random()-0.5;
-      this.vy = velbase.y + Math.random()-0.5;
+      this.vx = velbase.x + pnJS.fn.secureRand()-0.5;
+      this.vy = velbase.y + pnJS.fn.secureRand()-0.5;
     }
 
-    // var theta = 2.0 * Math.PI * Math.random();
+    // var theta = 2.0 * Math.PI * pnJS.fn.secureRand();
     // this.vx = Math.cos(theta);
     // this.vy = Math.sin(theta);
 
     this.vx_i = this.vx;
     this.vy_i = this.vy;
 
-    
+
 
     /* if shape is image */
 
     var shape_type = pJS.particles.shape.type;
     if(typeof(shape_type) == 'object'){
       if(shape_type instanceof Array){
-        var shape_selected = shape_type[Math.floor(Math.random() * shape_type.length)];
+        var shape_selected = shape_type[Math.floor(pnJS.fn.secureRand() * shape_type.length)];
         this.shape = shape_selected;
       }
     }else{
@@ -392,7 +405,7 @@ var pJS = function(tag_id, params){
       }
     }
 
-    
+
 
   };
 
@@ -402,7 +415,7 @@ var pJS = function(tag_id, params){
     var p = this;
 
     if(p.radius_bubble != undefined){
-      var radius = p.radius_bubble; 
+      var radius = p.radius_bubble;
     }else{
       var radius = p.radius;
     }
@@ -491,9 +504,9 @@ var pJS = function(tag_id, params){
       pJS.canvas.ctx.lineWidth = pJS.particles.shape.stroke.width;
       pJS.canvas.ctx.stroke();
     }
-    
+
     pJS.canvas.ctx.fill();
-    
+
   };
 
 
@@ -568,19 +581,19 @@ var pJS = function(tag_id, params){
 
       if(p.x - p.radius > pJS.canvas.w){
         p.x = new_pos.x_left;
-        p.y = Math.random() * pJS.canvas.h;
+        p.y = pnJS.fn.secureRand() * pJS.canvas.h;
       }
       else if(p.x + p.radius < 0){
         p.x = new_pos.x_right;
-        p.y = Math.random() * pJS.canvas.h;
+        p.y = pnJS.fn.secureRand() * pJS.canvas.h;
       }
       if(p.y - p.radius > pJS.canvas.h){
         p.y = new_pos.y_top;
-        p.x = Math.random() * pJS.canvas.w;
+        p.x = pnJS.fn.secureRand() * pJS.canvas.w;
       }
       else if(p.y + p.radius < 0){
         p.y = new_pos.y_bottom;
-        p.x = Math.random() * pJS.canvas.w;
+        p.x = pnJS.fn.secureRand() * pJS.canvas.w;
       }
 
       /* out of canvas modes */
@@ -664,7 +677,7 @@ var pJS = function(tag_id, params){
     pJS.tmp.count_svg = 0;
     pJS.fn.particlesEmpty();
     pJS.fn.canvasClear();
-    
+
     /* restart */
     pJS.fn.vendors.start();
 
@@ -684,14 +697,14 @@ var pJS = function(tag_id, params){
 
       var opacity_line = pJS.particles.line_linked.opacity - (dist / (1/pJS.particles.line_linked.opacity)) / pJS.particles.line_linked.distance;
 
-      if(opacity_line > 0){        
-        
+      if(opacity_line > 0){
+
         /* style */
         var color_line = pJS.particles.line_linked.color_rgb_line;
         pJS.canvas.ctx.strokeStyle = 'rgba('+color_line.r+','+color_line.g+','+color_line.b+','+opacity_line+')';
         pJS.canvas.ctx.lineWidth = pJS.particles.line_linked.width;
         //pJS.canvas.ctx.lineCap = 'round'; /* performance issue */
-        
+
         /* path */
         pJS.canvas.ctx.beginPath();
         pJS.canvas.ctx.moveTo(p1.x, p1.y);
@@ -725,7 +738,7 @@ var pJS = function(tag_id, params){
       p2.vy += ay;
 
     }
-    
+
 
   }
 
@@ -760,8 +773,8 @@ var pJS = function(tag_id, params){
           pJS.particles.color,
           pJS.particles.opacity.value,
           {
-            'x': pos ? pos.pos_x : Math.random() * pJS.canvas.w,
-            'y': pos ? pos.pos_y : Math.random() * pJS.canvas.h
+            'x': pos ? pos.pos_x : pnJS.fn.secureRand() * pJS.canvas.w,
+            'y': pos ? pos.pos_y : pnJS.fn.secureRand() * pJS.canvas.h
           }
         )
       )
@@ -805,7 +818,7 @@ var pJS = function(tag_id, params){
       if(dist_mouse <= pJS.interactivity.modes.bubble.distance){
 
         if(ratio >= 0 && pJS.interactivity.status == 'mousemove'){
-          
+
           /* size */
           if(pJS.interactivity.modes.bubble.size != pJS.particles.size.value){
 
@@ -854,7 +867,7 @@ var pJS = function(tag_id, params){
       if(pJS.interactivity.status == 'mouseleave'){
         init();
       }
-    
+
     }
 
     /* on click event */
@@ -933,7 +946,7 @@ var pJS = function(tag_id, params){
           repulseRadius = pJS.interactivity.modes.repulse.distance,
           velocity = 100,
           repulseFactor = clamp((1/repulseRadius)*(-1*Math.pow(dist_mouse/repulseRadius,2)+1)*repulseRadius*velocity, 0, 50);
-      
+
       var pos = {
         x: p.x + normVec.x * repulseFactor,
         y: p.y + normVec.y * repulseFactor
@@ -946,7 +959,7 @@ var pJS = function(tag_id, params){
         p.x = pos.x;
         p.y = pos.y;
       }
-    
+
     }
 
 
@@ -1001,7 +1014,7 @@ var pJS = function(tag_id, params){
         // }else{
         //   process();
         // }
-        
+
 
       }else{
 
@@ -1009,7 +1022,7 @@ var pJS = function(tag_id, params){
 
           p.vx = p.vx_i;
           p.vy = p.vy_i;
-        
+
         }
 
       }
@@ -1039,7 +1052,7 @@ var pJS = function(tag_id, params){
           pJS.canvas.ctx.strokeStyle = 'rgba('+color_line.r+','+color_line.g+','+color_line.b+','+opacity_line+')';
           pJS.canvas.ctx.lineWidth = pJS.particles.line_linked.width;
           //pJS.canvas.ctx.lineCap = 'round'; /* performance issue */
-          
+
           /* path */
           pJS.canvas.ctx.beginPath();
           pJS.canvas.ctx.moveTo(p.x, p.y);
@@ -1155,7 +1168,7 @@ var pJS = function(tag_id, params){
         }
 
       });
-        
+
     }
 
 
@@ -1193,8 +1206,8 @@ var pJS = function(tag_id, params){
           dist = Math.sqrt(dx*dx + dy*dy);
 
       if(dist <= p1.radius + p2.radius){
-        p1.x = position ? position.x : Math.random() * pJS.canvas.w;
-        p1.y = position ? position.y : Math.random() * pJS.canvas.h;
+        p1.x = position ? position.x : pnJS.fn.secureRand() * pJS.canvas.w;
+        p1.y = position ? position.y : pnJS.fn.secureRand() * pJS.canvas.h;
         pJS.fn.vendors.checkOverlap(p1);
       }
     }
@@ -1359,7 +1372,7 @@ var pJS = function(tag_id, params){
           pJS.fn.vendors.init();
           pJS.fn.vendors.draw();
         }
-        
+
       }
 
     }else{
@@ -1406,7 +1419,7 @@ var pJS = function(tag_id, params){
   pJS.fn.vendors.eventsListeners();
 
   pJS.fn.vendors.start();
-  
+
 
 
 };
