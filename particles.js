@@ -154,7 +154,7 @@ var pJS = function(tag_id, params){
   };
 
   // Taken from http://stackoverflow.com/a/13694869
-  psJS.fn.secureRand = function() {
+  pJS.fn.secureRand = function() {
     var arr = new Uint32Array(2);
     crypto.getRandomValues(arr);
 
